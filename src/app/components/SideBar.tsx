@@ -34,7 +34,7 @@ function Links({
             color 0.3s ease-out;
         }
         div:hover {
-          color: black;
+          color: #235865;
           font-size: 1.2rem;
           box-shadow: 0 1px 2px gainsboro;
         }
@@ -75,7 +75,7 @@ export default function SideBar({
           transition: color 0.3s ease-out;
           text-align: center;
           font-size: 1.5rem;
-          background-color: lightskyblue;
+          background-color: #235865;
           line-height: 2;
         }
         a:hover {

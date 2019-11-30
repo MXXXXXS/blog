@@ -10,7 +10,7 @@ export default function Article({article}: {article: string}) {
       <article dangerouslySetInnerHTML={{__html: md.render(article)}}></article>
       <style jsx>{`
         #main {
-          padding: 0 10px;
+          padding: 0 40px;
         }
         article {
           font-size: 1rem;

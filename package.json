@@ -4,8 +4,11 @@
   "description": "",
   "main": "",
   "dependencies": {
+    "@types/lodash": "^4.14.149",
     "@types/markdown-it": "0.0.9",
+    "@types/node": "^12.12.14",
     "core-js": "^3.4.5",
+    "lodash": "^4.17.15",
     "markdown-it": "^10.0.0",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
@@ -48,8 +51,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack",
+    "build-production": "webpack --mode=production",
     "parallel-build": "parallel-webpack",
-    "dev": "webpack-dev-server"
+    "dev": "webpack-dev-server",
+    "analyse": "node dist/analyser/analyser"
   },
   "repository": {
     "type": "git",
