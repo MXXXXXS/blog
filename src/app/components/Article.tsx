@@ -1,18 +1,43 @@
 import React from "react";
 
-import MarkdownIt from 'markdown-it'
+import MarkdownIt from "markdown-it";
 
-const md = new MarkdownIt()
+const md = new MarkdownIt();
 
-export default function Article({article}: {article: string}) {
+export default function Article({
+  article,
+  closed,
+  toggleBar
+}: {
+  article: string;
+  closed: boolean;
+  toggleBar: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
   return (
-    <div id="main">
-      <article dangerouslySetInnerHTML={{__html: md.render(article)}}></article>
+    <div id="main" onClick={() => {
+      if (!closed) {
+        toggleBar(true)
+      }
+    }}>
+      <article
+        dangerouslySetInnerHTML={{ __html: md.render(article) }}
+      ></article>
+      <style jsx global>{`
+        img {
+          width: 80vw;
+        }
+        pre {
+          overflow: auto;
+        }
+      `}</style>
       <style jsx>{`
         #main {
-          padding: 0 40px;
+          padding: 0 15px;
         }
         article {
+          word-break: break-all;
+          overflow: auto;
+          width: 90vw;
           font-size: 1rem;
           line-height: 1.5rem;
         }

@@ -84,11 +84,11 @@ function App() {
         }
         article {
           flex-grow: 1;
-          flex-basis: 600px;
+          width: 70vw;
         }
         aside {
-          flex-basis: 200px;
-          width: 120px;
+          text-align: center;
+          flex: 20vw;
           align-self: stretch;
           box-shadow: -5px 0px 5px #c7c7c7;
           background: linear-gradient(#0a4555, #e3e8e2);

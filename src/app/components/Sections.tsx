@@ -16,14 +16,20 @@ function Section({ title, content }: { title: string; content: string }) {
           dangerouslySetInnerHTML={{ __html: md.render(content) }}
         ></div>
       </section>
+      <style jsx global>{`
+        pre {
+          overflow: auto;
+        }
+      `}</style>
       <style jsx>{`
         .title {
           font-size: 1.4rem;
           color: white;
-          background: linear-gradient(90deg, #0a4555,#e3e8e2);
+          background: linear-gradient(90deg, #0a4555, #e3e8e2);
           padding: 10px;
         }
         .content {
+          word-wrap: break-word;
           font-size: 1rem;
           line-height: 1.5rem;
           padding: 10px;
@@ -35,7 +41,7 @@ function Section({ title, content }: { title: string; content: string }) {
         section {
           color: #235865;
           box-shadow: 0 0 20px gainsboro;
-          margin: 30px;
+          margin: 30px 5vw;
         }
       `}</style>
     </>
