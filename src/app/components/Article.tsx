@@ -14,11 +14,14 @@ export default function Article({
   toggleBar: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   return (
-    <div id="main" onClick={() => {
-      if (!closed) {
-        toggleBar(true)
-      }
-    }}>
+    <div
+      id="main"
+      onClick={() => {
+        if (!closed) {
+          toggleBar(true);
+        }
+      }}
+    >
       <article
         dangerouslySetInnerHTML={{ __html: md.render(article) }}
       ></article>
@@ -33,11 +36,14 @@ export default function Article({
       <style jsx>{`
         #main {
           padding: 0 15px;
+          flex: 1;
+          min-width: 0;
         }
         article {
+          margin: auto;
+          max-width: 800px;
           word-break: break-all;
           overflow: auto;
-          width: 90vw;
           font-size: 1rem;
           line-height: 1.5rem;
         }

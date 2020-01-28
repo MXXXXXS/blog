@@ -1,26 +1,20 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 
-function Links({
-  links,
-  sendArticle
+function ItemEL({
+  str,
+  activedStr,
+  setActived
 }: {
-  links: string[];
-  sendArticle: React.Dispatch<React.SetStateAction<string>>;
+  str: string;
+  activedStr: string;
+  setActived: (_: string) => void;
 }) {
-  useEffect(() => {});
-  const getArticle = (link: string) => {
-    fetch(`articles/${link}`)
-      .then(async response => {
-        const text = await response.text();
-        console.log(text);
-        sendArticle(text);
-      })
-      .catch(err => {
-        console.error(err);
-      });
-  };
-  const itemEL = (str: string) => (
-    <div key={str} onClick={() => getArticle(str)}>
+  const clickHandler = useCallback(() => setActived(str), []);
+  return (
+    <div
+      onClick={clickHandler}
+      className={str === activedStr ? "isActived" : "unActived"}
+    >
       {str}
       <style jsx>{`
         div {
@@ -31,10 +25,20 @@ function Links({
           text-overflow: ellipsis;
           white-space: nowrap;
           cursor: pointer;
-          color: grey;
-          transition: font-size 0.3s cubic-bezier(0.075, 0.82, 0.165, 1), box-shadow 0.6s cubic-bezier(0.075, 0.82, 0.165, 1),
+          transition: font-size 0.3s cubic-bezier(0.075, 0.82, 0.165, 1),
+            box-shadow 0.6s cubic-bezier(0.075, 0.82, 0.165, 1),
             color 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
         }
+
+        .unActived {
+          color: grey;
+        }
+
+        .isActived {
+          box-shadow: inset 4px 0 #5c8793;
+          color: #235865;
+        }
+
         div:hover {
           color: #235865;
           font-size: 1.2rem;
@@ -43,8 +47,40 @@ function Links({
       `}</style>
     </div>
   );
+}
 
-  return <>{links.map(link => itemEL(link))}</>;
+function Links({
+  links,
+  sendArticle
+}: {
+  links: string[];
+  sendArticle: React.Dispatch<React.SetStateAction<string>>;
+}) {
+  const [activedStr, setActivedStr] = useState();
+  const getArticle = useCallback((link: string) => {
+    setActivedStr(link);
+    fetch(`articles/${link}`)
+      .then(async response => {
+        const text = await response.text();
+        sendArticle(text);
+      })
+      .catch(err => {
+        console.error(err);
+      });
+  }, []);
+
+  return (
+    <>
+      {links.map(link => (
+        <ItemEL
+          key={link}
+          str={link}
+          activedStr={activedStr}
+          setActived={getArticle}
+        ></ItemEL>
+      ))}
+    </>
+  );
 }
 
 export default function SideBar({
@@ -52,9 +88,9 @@ export default function SideBar({
   closed,
   toggleBar
 }: {
-  changeArticle: React.Dispatch<React.SetStateAction<string>>,
-  closed: boolean,
-  toggleBar: React.Dispatch<React.SetStateAction<boolean>>
+  changeArticle: React.Dispatch<React.SetStateAction<string>>;
+  closed: boolean;
+  toggleBar: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
   const [noteLinks, setNoteLinks] = useState([]);
   useEffect(() => {
@@ -71,7 +107,6 @@ export default function SideBar({
 
   return (
     <aside>
-      <a href="/">MXXXXXS's notes</a>
       <span
         className="switcher"
         onClick={() => {
@@ -84,6 +119,7 @@ export default function SideBar({
       >
         ✖
       </span>
+      <a href="/">MXXXXXS's notes</a>
       <div className="links">
         <Links links={noteLinks} sendArticle={changeArticle} />
       </div>
@@ -109,7 +145,7 @@ export default function SideBar({
           transition: color 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
           text-align: center;
           font-size: 1.5rem;
-          background-color: #235865;
+          background: linear-gradient(to right, #0a4555, #e3e8e2);
           line-height: 2;
         }
         a:hover {
@@ -119,14 +155,14 @@ export default function SideBar({
           overflow: hidden;
           background: #ffffffe8;
           position: fixed;
+          right: ${closed ? "-15rem" : "0"};
+          top: 0;
           width: 18rem;
-          transition: height 0.4s cubic-bezier(0.075, 0.82, 0.165, 1), left 0.4s cubic-bezier(0.075, 0.82, 0.165, 1),
+          transition: height 0.4s cubic-bezier(0.075, 0.82, 0.165, 1),
+            right 0.4s cubic-bezier(0.075, 0.82, 0.165, 1),
             color 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
           box-sizing: border-box;
-          box-shadow: 2px 0 2px gainsboro;
           height: ${closed ? "3rem" : "100%"};
-          left: ${closed ? "-15rem" : "0"};
-          top: 0;
         }
         .links {
           height: calc(100vh - 3rem);
