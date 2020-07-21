@@ -1,7 +1,9 @@
+const process = require('process')
 const path = require('path')
-const HTMLWebpackPlugin = require('html-webpack-plugin')
+const fs = require('fs')
 
-const isProduction = typeof NODE_ENV !== 'undefined' && NODE_ENV === 'production'
+const NODE_ENV = process.env.NODE_ENV
+const isProduction = NODE_ENV === 'production'
 const mode = isProduction ? 'production' : 'development'
 
 const public = path.resolve(__dirname, 'public')
@@ -11,18 +13,25 @@ const entryArticles = path.resolve(__dirname, 'src/app/components/App.tsx')
 const entryHome = path.resolve(__dirname, 'src/app/index.tsx')
 const entryAnalyser = path.resolve(__dirname, 'src/analyser/analyser.ts')
 
+const merge = require('webpack-merge')
+
 //HTMLWebpackPlugin's options
-const articlesTemplate = path.resolve(public, 'articles.html')
-const homeTemplate = path.resolve(public, 'index.html')
+const HTMLWebpackPlugin = require('html-webpack-plugin')
+const htmlTemplate = path.resolve(public, 'index.html')
 const favicon = path.resolve(public, 'favicon.ico')
 
-//clean-webpack-plugin
-const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+// 清空目标目录
+if (isProduction) {
+  fs.rmdirSync(dist, {
+    recursive: true
+  })
+  fs.mkdirSync(dist)
+}
 
 const base = {
   mode: mode,
-  watch: true,
-  devtool: 'source-map',
+  watch: !isProduction,
+  devtool: isProduction ? undefined : 'source-map',
   devServer: {
     open: true,
     compress: true,
@@ -30,11 +39,14 @@ const base = {
     host: 'localhost',
     port: 8080,
     watchContentBase: true,
+    after: function (app, server, compiler) {
+
+    }
   },
   module: {
     rules: [
       {
-        test: /\.tsx?$/,
+        test: /\.(tsx?|css)$/,
         use: [{
           loader: 'babel-loader'
         }],
@@ -42,14 +54,25 @@ const base = {
       },
       {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader']
+        use: [{
+          loader: require('styled-jsx/webpack').loader,
+          options: {
+            type: (filename, options) => options.query.type || 'scoped' // https://github.com/zeit/styled-jsx#styles-in-regular-css-files
+          }
+        }]
       },
       {
         test: /\.html?$/,
         use: [{
           loader: 'html-loader',
-          options: { minimize: isProduction }
+          options: {
+            minimize: isProduction
+          }
         }]
+      },
+      {
+        test: /\.svg$/,
+        use: ['svg-inline-loader']
       }
     ]
   },
@@ -58,65 +81,65 @@ const base = {
   },
 }
 
-const configs = [
-  {
-    entry: { articles: entryArticles },
-    output: {
-      filename: '[name].js',
-      path: path.resolve(dist, 'app'),
-      publicPath: '/'
-    },
-    plugins: [
-      // new CleanWebpackPlugin(),
-      new HTMLWebpackPlugin({
-        template: articlesTemplate,
-        favicon: favicon,
-        filename: 'articles.html'
-      })
-    ]
+const configs = [{
+  entry: {
+    articles: entryArticles
   },
-  {
-    entry: { home: entryHome },
-    output: {
-      filename: '[name].js',
-      path: path.resolve(dist, 'app'),
-      publicPath: '/'
-    },
-    plugins: [
-      // new CleanWebpackPlugin(),
-      new HTMLWebpackPlugin({
-        template: homeTemplate,
-        favicon: favicon,
-        filename: 'index.html'
-      })
-    ]
+  output: {
+    filename: '[name].js',
+    path: path.resolve(dist, 'app'),
+    publicPath: isProduction ? './' : '/'  //devserver需要"/", 而生产环境配成相对路径, 以方便挂载到域名路径下
   },
-  {
-    target: 'node',
-    node: {
-      __dirname: false,
-      __filename: false,
-    },
-    entry: { analyser: entryAnalyser },
-    output: {
-      filename: '[name].js',
-      path: path.resolve(dist, 'analyser'),
-    },
-    plugins: [
-      new CleanWebpackPlugin(),
-    ],
-    module: {
-      rules: [
-        {
-          test: /\.tsx?$/,
-          use: [{
-            loader: 'babel-loader',
-          }],
-          exclude: /node_modules/,
-        },
-      ]
-    }
+  plugins: [
+    new HTMLWebpackPlugin({
+      template: htmlTemplate,
+      favicon: favicon,
+      filename: 'articles.html'
+    })
+  ]
+},
+{
+  entry: {
+    home: entryHome
   },
+  output: {
+    filename: '[name].js',
+    path: path.resolve(dist, 'app'),
+    publicPath: isProduction ? './' : '/'  //devserver需要"/", 而生产环境配成相对路径, 以方便挂载到域名路径下
+  },
+  plugins: [
+    new HTMLWebpackPlugin({
+      template: htmlTemplate,
+      favicon: favicon,
+      filename: 'index.html'
+    })
+  ]
+},
+{
+  target: 'node',
+  node: {
+    __dirname: false,
+    __filename: false,
+  },
+  entry: {
+    analyser: entryAnalyser
+  },
+  output: {
+    filename: '[name].js',
+    path: path.resolve(dist, 'analyser'),
+  },
+  module: {
+    rules: [{
+      test: /\.tsx?$/,
+      use: [{
+        loader: 'babel-loader',
+      }],
+      exclude: /node_modules/,
+    },]
+  }
+},
 ]
 
-module.exports = configs.map(config => Object.assign({}, base, config))
+console.log('isProduction: ', isProduction)
+
+module.exports = configs.map(config => merge.smart({}, base, config))

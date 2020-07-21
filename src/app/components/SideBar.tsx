@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 
+import externalLink from "../../../public/imgs/icons/external-link.svg";
+
 function ItemEL({
   str,
   activedStr,
@@ -10,14 +12,44 @@ function ItemEL({
   setActived: (_: string) => void;
 }) {
   const clickHandler = useCallback(() => setActived(str), []);
+  const openExternalLink = useCallback(() => {
+    window.open("./articles/" + str);
+  }, []);
+
   return (
     <div
       onClick={clickHandler}
       className={str === activedStr ? "isActived" : "unActived"}
     >
       {str}
+      <span
+        dangerouslySetInnerHTML={{ __html: externalLink }}
+        onClick={openExternalLink}
+      ></span>
+
       <style jsx>{`
+        span {
+          position: absolute;
+          width: 2rem;
+          right: 0;
+          visibility: hidden;
+        }
+
+        span {
+          fill: rgb(233, 233, 233);
+          transition: fill 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
+        }
+
+        span:hover {
+          fill: rgb(122, 122, 122);
+        }
+
+        div:hover span {
+          visibility: visible;
+        }
+
         div {
+          position: relative;
           height: 2rem;
           line-height: 2rem;
           padding-left: 20px;
@@ -56,17 +88,31 @@ function Links({
   links: string[];
   sendArticle: React.Dispatch<React.SetStateAction<string>>;
 }) {
-  const [activedStr, setActivedStr] = useState();
+  const [activedStr, setActivedStr] = useState("");
   const getArticle = useCallback((link: string) => {
     setActivedStr(link);
     fetch(`articles/${link}`)
       .then(async response => {
-        const text = await response.text();
-        sendArticle(text);
+        if (response.ok) {
+          const text = await response.text();
+          sendArticle(text);
+        }
       })
       .catch(err => {
         console.error(err);
       });
+  }, []);
+
+  useEffect(() => {
+    if (activedStr) {
+      window.location.hash = activedStr;
+    }
+  }, [activedStr]);
+
+  useEffect(() => {
+    if (window.location.hash) {
+      getArticle(decodeURI(window.location.hash).slice(1));
+    }
   }, []);
 
   return (
@@ -119,7 +165,7 @@ export default function SideBar({
       >
         ✖
       </span>
-      <a href="/">MXXXXXS's notes</a>
+      <a href="./">MXXXXXS's notes</a>
       <div className="links">
         <Links links={noteLinks} sendArticle={changeArticle} />
       </div>
@@ -158,14 +204,13 @@ export default function SideBar({
           right: ${closed ? "-15rem" : "0"};
           top: 0;
           width: 18rem;
-          transition: height 0.4s cubic-bezier(0.075, 0.82, 0.165, 1),
-            right 0.4s cubic-bezier(0.075, 0.82, 0.165, 1),
+          transition: right 0.4s cubic-bezier(0.075, 0.82, 0.165, 1),
             color 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
           box-sizing: border-box;
           height: ${closed ? "3rem" : "100%"};
         }
         .links {
-          height: calc(100vh - 3rem);
+          height: calc(100% - 3rem);
           overflow: auto;
         }
       `}</style>

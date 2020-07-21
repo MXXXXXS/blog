@@ -13,12 +13,16 @@ function Section({ title, content }: { title: string; content: string }) {
         <div className="title">{title}</div>
         <div
           className="content"
-          dangerouslySetInnerHTML={{ __html: md.render(content) }}
+          // 这里有个对图片路径的处理
+          dangerouslySetInnerHTML={{ __html: md.render(content).replace(/\.\/imgs\//g, "./articles/imgs/") }}
         ></div>
       </section>
       <style jsx global>{`
         pre {
           overflow: auto;
+        }
+        a {
+          color: #5c8793;
         }
       `}</style>
       <style jsx>{`
@@ -51,7 +55,7 @@ function Section({ title, content }: { title: string; content: string }) {
 export default function Sections({ articles }: { articles: Article[] }) {
   return (
     <>
-      {articles.map(article => (
+      {articles.map((article) => (
         <Section
           title={article.title}
           content={article.content}

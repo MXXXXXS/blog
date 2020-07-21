@@ -8,6 +8,11 @@ import { Article, Index } from "./interfaces/index";
 import _ from "lodash";
 
 import { scrollBar } from "./sharedStyle/scrollBar";
+import Drawer from "./components/Drawer";
+import { fontStyle } from "./sharedStyle/sideBarFontStyle";
+import codeFont from "./sharedStyle/codeFont";
+import Demo, {Content} from "./components/Demo"
+import color from "./sharedStyle/color"
 
 function App() {
   const randomSelect = (arr: any[], num: number): any[] => {
@@ -72,93 +77,117 @@ function App() {
           <Sections articles={articles}></Sections>
         </article>
         <aside>
-          <a href="/articles.html">看笔记</a>
+          <a href="articles.html" className="sideBarFontStyle">
+            看笔记
+          </a>
+          <Demo></Demo>
+          <Content name="孤岛传送门" items={[['Coink 的 blog', "https://coink.wang/"]]}></Content>
+          <Drawer
+            detailText={"一个普通前端工程师的日常笔记"}
+            panelText={"关于"}
+          ></Drawer>
+          <div className="gradient"></div>
         </aside>
       </main>
       <style jsx global>{`
         body {
           margin: 0;
         }
+        table {
+          word-break: break-word;
+        }
       `}</style>
       <style jsx global>
         {scrollBar}
       </style>
-      <style jsx>{`
-        main {
-          display: flex;
-        }
-        article {
-          flex: 4;
-          min-width: 0;
-        }
-
-        @media (max-width: 500px) {
+      <style jsx>{fontStyle}</style>
+      <style jsx>
+        {`
           main {
-            flex-direction: column-reverse;
+            display: flex;
           }
-        }
+          article {
+            flex: 4;
+            min-width: 0;
+          }
 
-        aside {
-          margin: 30px;
-          text-align: center;
-          flex: 1;
-          align-self: stretch;
-          box-shadow: 0 0 20px gainsboro;
-          background: linear-gradient(#0a4555, #e3e8e2);
-        }
-        a:hover {
-          color: rgb(255, 255, 255);
-          font-size: 1.2rem;
-        }
-        a {
-          display: block;
-          font-size: 1rem;
-          line-height: 3rem;
-          width: 100%;
-          padding: 5px;
-          box-sizing: border-box;
-          color: gainsboro;
-          text-decoration: none;
-          outline: none;
-          transition: font-size 0.3s ease-out, box-shadow 0.6s ease-out,
-            color 0.3s ease-out;
-        }
+          aside {
+            margin: 30px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            align-self: stretch;
+            box-shadow: 0 0 20px gainsboro;
+            background: ${color.主题暗色};
+          }
 
-        p {
-          text-align: center;
-          font-size: 0.8rem;
-        }
+          .gradient {
+            background: linear-gradient(to bottom, ${color.主题暗色}, ${color.主题亮色});
+            flex: 1;
+          }
 
-        nav {
-          display: flex;
-          padding-left: 20px;
-          font-size: 2rem;
-          color: #235865;
-        }
+          a:hover {
+            color: ${color.高亮字体色};
+            font-size: 1.2rem;
+          }
 
-        @media (max-width: 500px) {
+          a {
+            display: block;
+            font-size: 1rem;
+            line-height: 3rem;
+            width: 100%;
+            padding: 5px;
+            box-sizing: border-box;
+            color: ${color.正常字体色};
+            text-decoration: none;
+            outline: none;
+            transition: font-size 0.3s ease-out, box-shadow 0.6s ease-out,
+              color 0.3s ease-out;
+          }
+
+          p {
+            text-align: center;
+            font-size: 0.8rem;
+          }
+
+          nav {
+            display: flex;
+            padding-left: 20px;
+            font-size: 2rem;
+            color: ${color.主题暗色};
+          }
+
+          @media (max-width: 900px) {
+            main {
+              flex-direction: column-reverse;
+            }
+            header {
+              display: none;
+            }
+          }
           header {
-            display: none;
+            position: relative;
+            background-size: cover;
+            height: 500px;
+            box-shadow: inset 0px 8px 200px #000000;
+            background-image: url("imgs/background/background.jpg");
           }
-        }
-        header {
-          position: relative;
-          background-size: cover;
-          height: 500px;
-          box-shadow: inset 0px 8px 200px #000000;
-          background-image: url("imgs/background/background.jpg");
-        }
-        header > div {
-          position: absolute;
-          right: 20px;
-          bottom: 20px;
-          border: 2px solid;
-          padding: 0 16px;
-          border-radius: 10%;
-          background-color: rgba(50, 50, 50, 0.3);
-          color: white;
-        }
-      `}</style>
+          header > div {
+            position: absolute;
+            right: 20px;
+            bottom: 20px;
+            border: 2px solid;
+            padding: 0 16px;
+            border-radius: 10%;
+            background-color: rgba(50, 50, 50, 0.3);
+            color: ${color.正常字体色};
+          }
+        `}
+      </style>
+      <style jsx global>
+        {codeFont}
+      </style>
     </>
   );
 }
