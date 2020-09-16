@@ -1,6 +1,7 @@
 import React from "react";
 
 import { Article } from "../interfaces/index";
+import color from '../sharedStyle/color'
 
 import MarkdownIt from "markdown-it";
 
@@ -29,7 +30,7 @@ function Section({ title, content }: { title: string; content: string }) {
         .title {
           font-size: 1.4rem;
           color: white;
-          background: linear-gradient(90deg, #0a4555, #e3e8e2);
+          background: linear-gradient(90deg, ${color.主题暗色}, ${color.主题亮色});
           padding: 10px;
         }
         .content {
@@ -43,7 +44,7 @@ function Section({ title, content }: { title: string; content: string }) {
           text-transform: capitalize;
         }
         section {
-          color: #235865;
+          color: ${color.主题暗色};
           box-shadow: 0 0 20px gainsboro;
           margin: 30px 5vw;
         }

@@ -1,31 +1,56 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from 'react'
 
-import externalLink from "../../../public/imgs/icons/external-link.svg";
+import { jsxIcons } from '../../../public/imgs/icons'
+import { useSelector, useDispatch } from 'react-redux'
+import { ThunkAction, ThunkDispatch } from 'redux-thunk'
 
-function ItemEL({
-  str,
-  activedStr,
-  setActived
-}: {
-  str: string;
-  activedStr: string;
-  setActived: (_: string) => void;
-}) {
-  const clickHandler = useCallback(() => setActived(str), []);
+import { State, actionCreators, HistoryState } from '../redux/store'
+import color from '../sharedStyle/color'
+
+const {
+  fetchArticle,
+  fetchArticleTitles,
+  historyState,
+  articleTitlesSidebarFolded,
+} = actionCreators
+
+function ItemEL({ str }: { str: string }) {
+  const dispatch = useDispatch()
+  const {articleTitle: activedArticleTitle, headingIndex: activedHeadingIndex} = useSelector(
+    (state: State) => state.historyState
+  )
   const openExternalLink = useCallback(() => {
-    window.open("./articles/" + str);
-  }, []);
+    window.open('./articles/' + str)
+  }, [])
+
+  const loadArticle = useCallback(
+    function (articleTitle, headingIndex = 0) {
+      dispatch(historyState({
+        headingIndex: activedHeadingIndex,
+        articleTitle: 0
+      }))
+      dispatch(fetchArticle(articleTitle))
+    },
+    [str]
+  )
 
   return (
     <div
-      onClick={clickHandler}
-      className={str === activedStr ? "isActived" : "unActived"}
+      onClick={() => {
+        const historyState = JSON.parse(
+          localStorage.getItem('lastRead')
+        ) as HistoryState
+        loadArticle(
+          historyState?.articleTitle || str,
+          historyState?.headingIndex || 0
+        )
+      }}
+      className={str === activedArticleTitle ? 'isActived' : 'unActived'}
     >
       {str}
-      <span
-        dangerouslySetInnerHTML={{ __html: externalLink }}
-        onClick={openExternalLink}
-      ></span>
+      <span onClick={openExternalLink}>
+        <jsxIcons.Exlink></jsxIcons.Exlink>
+      </span>
 
       <style jsx>{`
         span {
@@ -68,110 +93,81 @@ function ItemEL({
 
         .isActived {
           box-shadow: inset 4px 0 #5c8793;
-          color: #235865;
+          color: ${color.主题暗色};
         }
 
         div:hover {
-          color: #235865;
+          color: ${color.主题暗色};
           font-size: 1.2rem;
           box-shadow: 0 1px 2px gainsboro;
         }
       `}</style>
     </div>
-  );
+  )
 }
 
-function Links({
-  links,
-  sendArticle
-}: {
-  links: string[];
-  sendArticle: React.Dispatch<React.SetStateAction<string>>;
-}) {
-  const [activedStr, setActivedStr] = useState("");
+function Links() {
+  const dispatch = useDispatch()
+  const articleTitles = useSelector(
+    (state: State) => state.articleTitles
+  )
+  const {articleTitle, headingIndex} = useSelector(
+    (state: State) => state.historyState
+  )
+
   const getArticle = useCallback((link: string) => {
-    setActivedStr(link);
-    fetch(`articles/${link}`)
-      .then(async response => {
-        if (response.ok) {
-          const text = await response.text();
-          sendArticle(text);
-        }
-      })
-      .catch(err => {
-        console.error(err);
-      });
-  }, []);
+    dispatch(historyState({
+      headingIndex: 0,
+      articleTitle: link
+    }))
+    dispatch(fetchArticle(link))
+  }, [])
 
-  useEffect(() => {
-    if (activedStr) {
-      window.location.hash = activedStr;
-    }
-  }, [activedStr]);
-
-  useEffect(() => {
-    if (window.location.hash) {
-      getArticle(decodeURI(window.location.hash).slice(1));
-    }
-  }, []);
+  // 加载上一次看到的文章
+  const lastArticleTitle = decodeURI(window.location.pathname)
+    .split('/')
+    .slice(-1)[0]
+  if (window.location.pathname) {
+    if (/md$/.test(lastArticleTitle)) getArticle(lastArticleTitle)
+  }
 
   return (
     <>
-      {links.map(link => (
-        <ItemEL
-          key={link}
-          str={link}
-          activedStr={activedStr}
-          setActived={getArticle}
-        ></ItemEL>
+      {articleTitles.map((link) => (
+        <ItemEL key={link} str={link}></ItemEL>
       ))}
     </>
-  );
+  )
 }
 
-export default function SideBar({
-  changeArticle,
-  closed,
-  toggleBar
-}: {
-  changeArticle: React.Dispatch<React.SetStateAction<string>>;
-  closed: boolean;
-  toggleBar: React.Dispatch<React.SetStateAction<boolean>>;
-}) {
-  const [noteLinks, setNoteLinks] = useState([]);
+function SideBar() {
+  const dispatch = useDispatch()
+
+  const folded = useSelector(
+    (state: State) => state.articleTitlesSidebarFolded
+  )
+
   useEffect(() => {
-    fetch("articles/index.json")
-      .then(async response => {
-        const index = await response.json();
-        console.log(index);
-        setNoteLinks(index.articles);
-      })
-      .catch(err => {
-        console.error(err);
-      });
-  }, []);
+    dispatch(fetchArticleTitles())
+  }, [])
 
   return (
     <aside>
       <span
         className="switcher"
         onClick={() => {
-          if (closed) {
-            toggleBar(false);
-          } else {
-            toggleBar(true);
-          }
+          dispatch(articleTitlesSidebarFolded(!folded))
         }}
       >
         ✖
       </span>
       <a href="./">MXXXXXS's notes</a>
       <div className="links">
-        <Links links={noteLinks} sendArticle={changeArticle} />
+        <Links />
       </div>
       <style jsx>{`
         span {
-          color: #235865;
+          color: ${color.主题暗色};
           display: inline-block;
           text-align: center;
           width: 3rem;
@@ -179,7 +175,9 @@ export default function SideBar({
           line-height: 2;
           cursor: pointer;
           transition: transform 0.4s cubic-bezier(0.075, 0.82, 0.165, 1);
-          transform: ${closed ? "rotate(45deg)" : "rotate(0deg)"};
+          transform: ${folded
+            ? 'rotate(45deg)'
+            : 'rotate(0deg)'};
         }
         a {
           box-sizing: border-box;
@@ -191,7 +189,11 @@ export default function SideBar({
           transition: color 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
           text-align: center;
           font-size: 1.5rem;
-          background: linear-gradient(to right, #0a4555, #e3e8e2);
+          background: linear-gradient(
+            to right,
+            ${color.主题暗色},
+            ${color.主题亮色}
+          );
           line-height: 2;
         }
         a:hover {
@@ -201,13 +203,13 @@ export default function SideBar({
           overflow: hidden;
           background: #ffffffe8;
           position: fixed;
-          right: ${closed ? "-15rem" : "0"};
+          right: ${folded ? '-15rem' : '0'};
           top: 0;
           width: 18rem;
           transition: right 0.4s cubic-bezier(0.075, 0.82, 0.165, 1),
             color 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
           box-sizing: border-box;
-          height: ${closed ? "3rem" : "100%"};
+          height: ${folded ? '3rem' : '100%'};
         }
         .links {
           height: calc(100% - 3rem);
@@ -215,5 +217,7 @@ export default function SideBar({
         }
       `}</style>
     </aside>
-  );
+  )
 }
+
+export default SideBar

@@ -1,0 +1,12 @@
+{
+  "prettier.semi": false,
+  "prettier.trailingComma": "none",
+  "prettier.singleQuote": true,
+  "prettier.requireConfig": true,
+  "prettier.jsxSingleQuote": true,
+  "prettier.configPath": "package.json",
+  "prettier.prettierPath": "node_modules/prettier",
+  "[typescriptreact]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+  }
+}

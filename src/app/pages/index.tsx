@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from "react";
 import ReactDOM from "react-dom";
 
-import Sections from "./components/Sections";
+import Sections from "../components/Sections";
 
-import { Article, Index } from "./interfaces/index";
+import { Article, Index } from "../interfaces/index";
 
 import _ from "lodash";
 
-import { scrollBar } from "./sharedStyle/scrollBar";
-import Drawer from "./components/Drawer";
-import { fontStyle } from "./sharedStyle/sideBarFontStyle";
-import codeFont from "./sharedStyle/codeFont";
-import Demo, {Content} from "./components/Demo"
-import color from "./sharedStyle/color"
+import { scrollBar } from "../sharedStyle/scrollBar";
+import Drawer from "../components/Drawer";
+import { fontStyle } from "../sharedStyle/sideBarFontStyle";
+import codeFont from "../sharedStyle/codeFont";
+import Demo, {Content} from "../components/Demo"
+import color from "../sharedStyle/color"
 
 function App() {
   const randomSelect = (arr: any[], num: number): any[] => {
