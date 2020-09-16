@@ -9,8 +9,8 @@ const mode = isProduction ? 'production' : 'development'
 const public = path.resolve(__dirname, 'public')
 const dist = path.resolve(__dirname, 'dist')
 
-const entryArticles = path.resolve(__dirname, 'src/app/components/App.tsx')
-const entryHome = path.resolve(__dirname, 'src/app/index.tsx')
+const entryArticles = path.resolve(__dirname, 'src/app/pages/readingPage.tsx')
+const entryHome = path.resolve(__dirname, 'src/app/pages/index.tsx')
 const entryAnalyser = path.resolve(__dirname, 'src/analyser/analyser.ts')
 
 const merge = require('webpack-merge')

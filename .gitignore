@@ -1,4 +1,4 @@
 node_modules
 dist
 public/articles
-public/imgs
+.VSCodeCounter
